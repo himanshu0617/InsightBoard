@@ -1,16 +1,25 @@
-import { useState, useEffect } from 'react';
+import { lazy, Suspense, useState, useEffect, useCallback } from 'react';
 import { 
   LayoutDashboard, TrendingUp, BarChart3, PieChart, 
   HelpCircle, Lightbulb, FileText, Sun, Moon, ShieldAlert,
   Calendar, MapPin, Tag, UserCheck
 } from 'lucide-react';
-import { DashboardOverview } from './views/DashboardOverview';
-import { RevenueAnalytics } from './views/RevenueAnalytics';
-import { ProfitabilityAnalysis } from './views/ProfitabilityAnalysis';
-import { ForecastingEngine } from './views/ForecastingEngine';
-import { WhatIfSimulation } from './views/WhatIfSimulation';
-import { Recommendations } from './views/Recommendations';
-import { ReportingCenter } from './views/ReportingCenter';
+import { API_BASE_URL } from './api';
+const DashboardOverview = lazy(() => import('./views/DashboardOverview').then((module) => ({ default: module.DashboardOverview })));
+const RevenueAnalytics = lazy(() => import('./views/RevenueAnalytics').then((module) => ({ default: module.RevenueAnalytics })));
+const ProfitabilityAnalysis = lazy(() => import('./views/ProfitabilityAnalysis').then((module) => ({ default: module.ProfitabilityAnalysis })));
+const ForecastingEngine = lazy(() => import('./views/ForecastingEngine').then((module) => ({ default: module.ForecastingEngine })));
+const WhatIfSimulation = lazy(() => import('./views/WhatIfSimulation').then((module) => ({ default: module.WhatIfSimulation })));
+const Recommendations = lazy(() => import('./views/Recommendations').then((module) => ({ default: module.Recommendations })));
+const ReportingCenter = lazy(() => import('./views/ReportingCenter').then((module) => ({ default: module.ReportingCenter })));
+import type {
+  DashboardKpiResponse,
+  DashboardKpis,
+  MonthlyTrend,
+  ProductAnalytics,
+  RegionAnalytics,
+  RevenueAnalyticsResponse,
+} from './types';
 
 const REGIONS = ["North America", "Europe", "Asia-Pacific", "Latin America", "Middle East & Africa"];
 
@@ -36,10 +45,10 @@ export default function App() {
   const [selectedCustomerType, setSelectedCustomerType] = useState('all');
 
   // Shared statistics loaded globally for charts and overview
-  const [kpiData, setKpiData] = useState<any>(null);
-  const [trends, setTrends] = useState<any[]>([]);
-  const [products, setProducts] = useState<any[]>([]);
-  const [regions, setRegions] = useState<any[]>([]);
+  const [kpiData, setKpiData] = useState<DashboardKpis | null>(null);
+  const [trends, setTrends] = useState<MonthlyTrend[]>([]);
+  const [products, setProducts] = useState<ProductAnalytics[]>([]);
+  const [regions, setRegions] = useState<RegionAnalytics[]>([]);
   
   const [loading, setLoading] = useState(true);
 
@@ -54,7 +63,7 @@ export default function App() {
   }, [darkMode]);
 
   // Fetch baseline statistics
-  const fetchDashboardData = async () => {
+  const fetchDashboardData = useCallback(async () => {
     setLoading(true);
     try {
       const queryParams = new URLSearchParams();
@@ -65,12 +74,12 @@ export default function App() {
       if (selectedCustomerType !== 'all') queryParams.append('customerType', selectedCustomerType);
 
       const [kpiRes, anaRes] = await Promise.all([
-        fetch(`http://localhost:5000/api/dashboard/kpis?${queryParams.toString()}`),
-        fetch(`http://localhost:5000/api/analytics/revenue?${queryParams.toString()}`)
+        fetch(`${API_BASE_URL}/api/dashboard/kpis?${queryParams.toString()}`),
+        fetch(`${API_BASE_URL}/api/analytics/revenue?${queryParams.toString()}`)
       ]);
 
-      const kpis = await kpiRes.json();
-      const analytics = await anaRes.json();
+      const kpis: DashboardKpiResponse = await kpiRes.json();
+      const analytics: RevenueAnalyticsResponse = await anaRes.json();
 
       setKpiData({
         ...kpis.current,
@@ -84,11 +93,14 @@ export default function App() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [startDate, endDate, selectedRegion, selectedProduct, selectedCustomerType]);
 
   useEffect(() => {
-    fetchDashboardData();
-  }, [startDate, endDate, selectedRegion, selectedProduct, selectedCustomerType]);
+    const timer = window.setTimeout(() => {
+      void fetchDashboardData();
+    });
+    return () => window.clearTimeout(timer);
+  }, [fetchDashboardData]);
 
   // Drill down helper
   const handleDrillDown = (drillFilters: { region?: string; product?: string }) => {
@@ -270,7 +282,7 @@ export default function App() {
               <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase">Role switcher:</span>
               <select
                 value={role}
-                onChange={(e: any) => setRole(e.target.value)}
+                onChange={(e) => setRole(e.target.value as typeof role)}
                 className="bg-slate-100 dark:bg-slate-850 border border-slate-250 dark:border-slate-800 text-xs font-bold py-1 px-2.5 rounded-lg outline-none text-slate-700 dark:text-slate-205"
               >
                 <option value="Executive">Executive</option>
@@ -358,7 +370,9 @@ export default function App() {
 
         {/* View Workspace Contents */}
         <main className="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-950/20">
-          {renderActiveView()}
+          <Suspense fallback={<div className="animate-pulse text-sm text-slate-500">Loading view...</div>}>
+            {renderActiveView()}
+          </Suspense>
         </main>
       </div>
     </div>

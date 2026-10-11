@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { FileText, Download, Table, ClipboardCheck, ArrowDownToLine } from 'lucide-react';
+import type { DateFilters } from '../types';
+import { API_BASE_URL } from '../api';
 
 interface ReportingCenterProps {
-  filters: any;
+  filters: DateFilters;
 }
 
 export const ReportingCenter: React.FC<ReportingCenterProps> = ({
@@ -23,7 +25,7 @@ export const ReportingCenter: React.FC<ReportingCenterProps> = ({
       if (filters.customerType && filters.customerType !== 'all') queryParams.append('customerType', filters.customerType);
 
       // We direct window location to trigger the browser attachment download
-      window.open(`http://localhost:5000/api/reports/pdf?${queryParams.toString()}`, '_blank');
+      window.open(`${API_BASE_URL}/api/reports/pdf?${queryParams.toString()}`, '_blank');
     } catch (e) {
       console.error("PDF download failed", e);
     } finally {
@@ -39,7 +41,7 @@ export const ReportingCenter: React.FC<ReportingCenterProps> = ({
     if (filters.product && filters.product !== 'all') queryParams.append('product', filters.product);
     if (filters.customerType && filters.customerType !== 'all') queryParams.append('customerType', filters.customerType);
 
-    window.open(`http://localhost:5000/api/export/csv?${queryParams.toString()}`, '_blank');
+    window.open(`${API_BASE_URL}/api/export/csv?${queryParams.toString()}`, '_blank');
   };
 
   const reportsList = [

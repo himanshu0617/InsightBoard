@@ -1,147 +1,204 @@
-# InsightBoard — Executive KPI & Decision Intelligence Platform
+# InsightBoard
 
-InsightBoard is a production-grade, enterprise business intelligence (BI) and decision intelligence platform designed for CEOs, CFOs, and business leaders to monitor key metrics, analyze segment profitability, forecast financial performance, simulate business decisions, and export presentation-ready reports.
+InsightBoard is an executive business intelligence and decision support dashboard for revenue, profitability, forecasting, and strategy planning. It combines a Python Flask API with a React + TypeScript frontend to turn transaction data into KPI cards, trend analysis, simulation tools, and downloadable reports.
 
-The platform is designed to resemble premium business intelligence systems used by consulting firms and large enterprises like Amazon, Deloitte, Accenture, and McKinsey.
-
----
-
-## 🚀 Key Features
-
-*   **Executive KPI Cards**: Instant access to high-level corporate metrics including Total Revenue, Net Profit, Operating Margin, SaaS Monthly Recurring Revenue (MRR), Customer Growth, and Customer Acquisition Cost (CAC) with period-over-period growth indicators.
-*   **Revenue & Segment Analytics**: Deep-dives into monthly performance trends, product-wise sales revenue, and regional market shares with interactive drill-down options.
-*   **Profitability Analysis**: Visual breakdowns of costs (COGS, OpEx, and marketing CAC) paired with historical net profit margins.
-*   **Time-Series Forecasting Engine**: Predicts Revenue, Profit, and Customer growth 12 months out using:
-    *   *Ordinary Least Squares (OLS) Linear Regression*
-    *   *Holt's Linear Exponential Smoothing (Double Smoothing)*
-    *   *Simple Moving Averages*
-*   **What-If Decision Simulator**: Interactive sliders modeling price adjustments (based on a standard -0.7 demand elasticity curve), marketing budget shifts, and customer growth trends to calculate LTV, CAC, and bottom-line variances.
-*   **Decision Recommendations**: Machine heuristics analyze transactional records to output actionable strategic recommendations (e.g. sunsetting declining lines, reallocating budgets to high-margin products, optimizing regional operating costs).
-*   **Reporting & Exports Center**:
-    *   *PDF Exports*: Generates custom, presentation-ready PDF reports (Executive Summary, Quarterly Business, and Revenue Performance) via Python ReportLab.
-    *   *CSV Spreadsheet Export*: Compiles monthly aggregated transactions for custom spreadsheet analysis.
-*   **Role-Based Access Control (RBAC)**: Switch between three distinct roles:
-    *   *Executive*: Full write access, simulation access, and PDF report downloads.
-    *   *Manager*: Read-only access to dashboards, analytics, and forecasts.
-    *   *Viewer*: Access limited to the main Dashboard Overview and Recommendations.
-*   **Aesthetic Dark & Light Theme**: Slate layout theme with glassmorphic cards and polished micro-animations.
+The app is designed for business leaders who want a fast way to review performance, explore operational drivers, and evaluate strategic changes before committing to a decision.
 
 ---
 
-## 🛠️ Tech Stack
+## Overview
 
-*   **Frontend**: React (v19), TypeScript, Tailwind CSS (v4), Recharts, Lucide Icons, Vite
-*   **Backend**: Python Flask, PyMongo, Pandas, NumPy, Scikit-Learn
-*   **Database**: MongoDB (Compass/Server v6+)
-*   **Reporting**: ReportLab PDF library
+InsightBoard includes:
+
+- Executive KPI monitoring with revenue, profit, margin, customer growth, CAC, and MRR views
+- Revenue and segment analytics by region, product, and customer segment
+- Profitability analysis across costs and margin drivers
+- Forecasting for revenue, profit, and customer growth using multiple models
+- What-if simulation for pricing, marketing spend, and demand assumptions
+- Rule-based recommendations for business action planning
+- RBAC-style role access for viewer, manager, and executive personas
+- PDF and CSV reporting for stakeholder-ready outputs
 
 ---
 
-## 📂 Project Structure
+## Tech Stack
+
+### Frontend
+- React 19
+- TypeScript
+- Vite
+- Recharts
+- Lucide React
+
+### Backend
+- Python 3.10+
+- Flask
+- Flask-CORS
+- PyMongo
+- Pandas
+- NumPy
+- scikit-learn
+- ReportLab
+
+### Data Layer
+- MongoDB
+
+---
+
+## Project Structure
 
 ```text
 InsightBoard/
 ├── backend/
-│   ├── .venv/                  # Python Virtual Environment
-│   ├── app.py                  # Flask main application & REST API routes
-│   ├── db.py                   # MongoDB client connection helper
-│   ├── seed_db.py              # 100,000+ transaction database generator
-│   ├── forecaster.py           # Time-series forecasting models
-│   ├── recommender.py          # Corporate heuristic recommendation compiler
-│   ├── reporting.py            # ReportLab PDF design and compilation code
-│   └── requirements.txt        # Backend python dependencies
+│   ├── app.py
+│   ├── db.py
+│   ├── forecaster.py
+│   ├── recommender.py
+│   ├── reporting.py
+│   ├── requirements.txt
+│   └── seed_db.py
 ├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   └── KPICard.tsx     # KPI metrics display card
-│   │   ├── views/
-│   │   │   ├── DashboardOverview.tsx    # Dashboard home view
-│   │   │   ├── RevenueAnalytics.tsx     # Segment sales charts
-│   │   │   ├── ProfitabilityAnalysis.tsx # Expense donut and margin trends
-│   │   │   ├── ForecastingEngine.tsx    # Statistical projection charts
-│   │   │   ├── WhatIfSimulation.tsx     # Sliders and variance tables
-│   │   │   ├── Recommendations.tsx      # Corporate advisory card decks
-│   │   │   └── ReportingCenter.tsx      # Export triggers & downloads
-│   │   ├── App.tsx             # State filters and layout router
-│   │   ├── index.css           # Tailwind base styles and glassmorphism CSS
-│   │   └── main.tsx            # Main renderer
-│   ├── package.json            # Node JS project packages
-│   └── vite.config.ts          # Vite build parameters with Tailwind
-└── README.md                   # Setup and usage guide
+│   ├── package.json
+│   ├── vite.config.ts
+│   ├── README.md
+│   └── src/
+│       ├── App.tsx
+│       ├── index.css
+│       ├── main.tsx
+│       ├── components/
+│       └── views/
+│           ├── DashboardOverview.tsx
+│           ├── ForecastingEngine.tsx
+│           ├── ProfitabilityAnalysis.tsx
+│           ├── Recommendations.tsx
+│           ├── ReportingCenter.tsx
+│           ├── RevenueAnalytics.tsx
+│           └── WhatIfSimulation.tsx
+├── README.md
+└── .gitignore
 ```
 
 ---
 
-## ⚙️ Installation & Setup
+## Prerequisites
 
-### Prerequisites
-Make sure you have the following installed on your machine:
-*   [Python 3.10+](https://www.python.org/)
-*   [Node.js v18+](https://nodejs.org/)
-*   [MongoDB Server](https://www.mongodb.com/try/download/community) (running on `localhost:27017`)
+Before starting, install:
 
----
-
-### Step 1: Set Up & Seed the Backend Database
-
-1.  Open your terminal and navigate to the `backend/` folder:
-    ```powershell
-    cd backend
-    ```
-
-2.  Create a Python virtual environment and activate it:
-    ```powershell
-    # Windows PowerShell
-    python -m venv .venv
-    .venv\Scripts\Activate.ps1
-    ```
-
-3.  Install Python dependencies:
-    ```powershell
-    pip install -r requirements.txt
-    ```
-
-4.  Generate the **100,000+ transactional records** (approx. 5.5 years of historical data) and seed your local MongoDB server:
-    ```powershell
-    python seed_db.py
-    ```
-    *You should see progress logs showing ~139,000 records seeded and MongoDB indexes created successfully.*
-
-5.  Start the Flask API server:
-    ```powershell
-    python app.py
-    ```
-    *The API will start listening on `http://127.0.0.1:5000`.*
+- Python 3.10+
+- Node.js 18+
+- MongoDB Community Server running locally on port 27017
 
 ---
 
-### Step 2: Set Up the Frontend React App
+## Local Setup
 
-1.  Open a new terminal session and navigate to the `frontend/` folder:
-    ```powershell
-    cd frontend
-    ```
+### 1) Backend setup
 
-2.  Install dependencies:
-    ```powershell
-    npm install
-    ```
+From the project root:
 
-3.  Start the Vite development server:
-    ```powershell
-    npm run dev
-    ```
-    *The dashboard will start running at `http://localhost:5173/`.*
+```bash
+cd backend
+python -m venv .venv
+```
+
+Activate the virtual environment:
+
+Windows PowerShell:
+```powershell
+.venv\Scripts\Activate.ps1
+```
+
+macOS/Linux:
+```bash
+source .venv/bin/activate
+```
+
+Then install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+Seed the database:
+
+```bash
+python seed_db.py
+```
+
+This generates sample transaction data and loads it into MongoDB.
+
+Start the Flask API:
+
+```bash
+python app.py
+```
+
+The API runs at:
+
+```text
+http://127.0.0.1:5001
+```
 
 ---
 
-## 🖥️ How to Use
+### 2) Frontend setup
 
-1.  Open [http://localhost:5173/](http://localhost:5173/) in your web browser.
-2.  Use the **Global Filters** at the top of the screen to filter records by Region, Product, Customer Type, or Date Range. Charts and KPI calculations will update dynamically.
-3.  Click on any product name in the **Overview Dashboard** tables or region list items to trigger a **drill-down** into the **Revenue Analytics** workspace.
-4.  Switch your role profile (in the header) to see how access permissions alter:
-    *   **Manager** hides What-If and PDF Report center screens.
-    *   **Viewer** blocks tabs, restricting visibility to Overview and Recommendations only.
-5.  Launch **What-If decision runs** by sliding adjustments under the simulation tab.
-6.  Navigate to the **Reporting Center** to download print-ready PDFs compiled by the ReportLab engine.
+Open a second terminal and run:
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+The frontend is served by Vite at:
+
+```text
+http://localhost:5173/
+```
+
+---
+
+## App Workflow
+
+1. Open the UI at http://localhost:5173/
+2. Use the global filters to narrow by date, region, product, or customer type
+3. Review KPI cards and trends on the overview dashboard
+4. Drill into revenue and profitability data for more detail
+5. Explore forecasting and scenario simulation tools
+6. Review recommendations and export PDF or CSV reports
+
+---
+
+## Role Access
+
+The front-end includes role-based visibility:
+
+- Executive: full access to all views and reporting
+- Manager: dashboard, analytics, forecasting, and recommendations access
+- Viewer: limited access to overview and recommendation views
+
+---
+
+## Important Notes
+
+- The backend expects MongoDB to be available on localhost:27017.
+- The app uses the local Flask backend at http://127.0.0.1:5001 for API calls from the frontend.
+- Report generation and recommendation logic are handled server-side in the Python backend.
+
+---
+
+## Typical Development Flow
+
+```bash
+# Terminal 1
+cd backend
+.venv\Scripts\Activate.ps1
+python app.py
+
+# Terminal 2
+cd frontend
+npm run dev
+```
+
+This is the normal local workflow for developing and testing the dashboard.

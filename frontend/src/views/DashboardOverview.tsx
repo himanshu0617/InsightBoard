@@ -5,12 +5,13 @@ import {
   CartesianGrid, Tooltip, Legend, PieChart, Pie, Cell 
 } from 'recharts';
 import { TrendingUp, AlertCircle, ShoppingBag, MapPin } from 'lucide-react';
+import type { DashboardKpis, MonthlyTrend, ProductAnalytics, RegionAnalytics } from '../types';
 
 interface DashboardOverviewProps {
-  kpis: any;
-  trends: any[];
-  products: any[];
-  regions: any[];
+  kpis: DashboardKpis | null;
+  trends: MonthlyTrend[];
+  products: ProductAnalytics[];
+  regions: RegionAnalytics[];
   loading: boolean;
   onFilterChange: (filters: { region?: string; product?: string }) => void;
   setActiveTab: (tab: string) => void;
@@ -27,7 +28,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   onFilterChange,
   setActiveTab,
 }) => {
-  const formatCurrency = (val: number) => {
+  const formatCurrency = (val: number | undefined) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -35,9 +36,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
     }).format(val || 0);
   };
 
-  const getTrendDirection = (val: number) => {
-    if (val > 0) return 'up';
-    if (val < 0) return 'down';
+  const getTrendDirection = (val: number | undefined) => {
+    if ((val ?? 0) > 0) return 'up';
+    if ((val ?? 0) < 0) return 'down';
     return 'flat';
   };
 
@@ -116,7 +117,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                   <XAxis dataKey="year_month" stroke="#94a3b8" fontSize={10} tickLine={false} />
                   <YAxis yAxisId="left" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `$${(v/1e6).toFixed(1)}M`} />
                   <YAxis yAxisId="right" orientation="right" stroke="#94a3b8" fontSize={10} tickLine={false} axisLine={false} tickFormatter={(v) => `$${(v/1e3).toFixed(0)}k`} />
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '11px' }} />
                   <Bar yAxisId="left" dataKey="revenue" name="Revenue" fill="#0D9488" radius={[4, 4, 0, 0]} opacity={0.85} />
                   <Line yAxisId="left" type="monotone" dataKey="profit" name="Net Profit" stroke="#6366F1" strokeWidth={3} dot={{ r: 2 }} />
@@ -158,7 +159,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (

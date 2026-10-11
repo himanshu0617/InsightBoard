@@ -4,11 +4,12 @@ import {
   CartesianGrid, Tooltip, LineChart, Line 
 } from 'recharts';
 import { TrendingUp, DollarSign, Globe, Layers } from 'lucide-react';
+import type { MonthlyTrend, ProductAnalytics, RegionAnalytics } from '../types';
 
 interface RevenueAnalyticsProps {
-  trends: any[];
-  products: any[];
-  regions: any[];
+  trends: MonthlyTrend[];
+  products: ProductAnalytics[];
+  regions: RegionAnalytics[];
   loading: boolean;
   onFilterChange: (filters: { region?: string; product?: string }) => void;
 }
@@ -84,7 +85,7 @@ export const RevenueAnalytics: React.FC<RevenueAnalyticsProps> = ({
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.1} />
                   <XAxis dataKey="year_month" stroke="#94a3b8" fontSize={9} tickLine={false} />
                   <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} tickFormatter={(v) => `$${(v/1e3).toFixed(0)}k`} />
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Line type="monotone" dataKey="revenue" name="Revenue" stroke="#0D9488" strokeWidth={2} dot={false} activeDot={{ r: 4 }} />
                 </LineChart>
               </ResponsiveContainer>
@@ -108,7 +109,7 @@ export const RevenueAnalytics: React.FC<RevenueAnalyticsProps> = ({
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.1} />
                   <XAxis dataKey="label" stroke="#94a3b8" fontSize={9} tickLine={false} />
                   <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} tickFormatter={(v) => `$${(v/1e6).toFixed(1)}M`} />
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Bar dataKey="revenue" name="Quarterly Revenue" fill="#6366F1" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>

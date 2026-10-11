@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { Sliders, RefreshCw, BarChart3, TrendingUp, TrendingDown, HelpCircle } from 'lucide-react';
+import type { DateFilters, WhatIfSimulationResponse } from '../types';
+import { API_BASE_URL } from '../api';
 
 interface WhatIfSimulationProps {
-  filters: any;
+  filters: DateFilters;
 }
 
 export const WhatIfSimulation: React.FC<WhatIfSimulationProps> = ({
@@ -12,10 +14,10 @@ export const WhatIfSimulation: React.FC<WhatIfSimulationProps> = ({
   const [priceDelta, setPriceDelta] = useState(0);
   const [customerDelta, setCustomerDelta] = useState(0);
   
-  const [results, setResults] = useState<any>(null);
+  const [results, setResults] = useState<WhatIfSimulationResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const formatCurrency = (val: number) => {
+  const formatCurrency = (val: number | undefined) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -40,7 +42,7 @@ export const WhatIfSimulation: React.FC<WhatIfSimulationProps> = ({
         if (filters.product && filters.product !== 'all') queryParams.append('product', filters.product);
         if (filters.customerType && filters.customerType !== 'all') queryParams.append('customerType', filters.customerType);
 
-        const response = await fetch(`http://localhost:5000/api/analytics/what-if?${queryParams.toString()}`, {
+        const response = await fetch(`${API_BASE_URL}/api/analytics/what-if?${queryParams.toString()}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({

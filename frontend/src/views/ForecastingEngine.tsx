@@ -4,9 +4,11 @@ import {
   CartesianGrid, Tooltip, Legend 
 } from 'recharts';
 import { LineChart as ChartIcon, Settings, Compass, Info } from 'lucide-react';
+import type { DateFilters, ForecastChartRow, ForecastPoint, ForecastResponse } from '../types';
+import { API_BASE_URL } from '../api';
 
 interface ForecastingEngineProps {
-  filters: any;
+  filters: DateFilters;
 }
 
 export const ForecastingEngine: React.FC<ForecastingEngineProps> = ({
@@ -14,7 +16,7 @@ export const ForecastingEngine: React.FC<ForecastingEngineProps> = ({
 }) => {
   const [metric, setMetric] = useState<'revenue' | 'profit' | 'customers'>('revenue');
   const [model, setModel] = useState<'moving_average' | 'exponential_smoothing' | 'linear'>('linear');
-  const [data, setData] = useState<{ historical: any[]; forecast: any[] } | null>(null);
+  const [data, setData] = useState<ForecastResponse | null>(null);
   const [loading, setLoading] = useState(true);
 
   const formatCurrency = (val: number) => {
@@ -40,7 +42,7 @@ export const ForecastingEngine: React.FC<ForecastingEngineProps> = ({
         if (filters.product && filters.product !== 'all') queryParams.append('product', filters.product);
         if (filters.customerType && filters.customerType !== 'all') queryParams.append('customerType', filters.customerType);
 
-        const response = await fetch(`http://localhost:5000/api/analytics/forecast?${queryParams.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/api/analytics/forecast?${queryParams.toString()}`);
         const result = await response.json();
         setData(result);
       } catch (e) {
@@ -58,7 +60,7 @@ export const ForecastingEngine: React.FC<ForecastingEngineProps> = ({
     if (!data) return [];
     const { historical, forecast } = data;
     
-    const chartRows: any[] = [];
+    const chartRows: ForecastChartRow[] = [];
     
     // Push historical points
     historical.forEach((h) => {
@@ -118,7 +120,7 @@ export const ForecastingEngine: React.FC<ForecastingEngineProps> = ({
 
   const modelDetails = getModelDetails();
 
-  const getMetricAverage = (list: any[]) => {
+  const getMetricAverage = (list: ForecastPoint[]) => {
     if (!list || list.length === 0) return 0;
     return list.reduce((acc, curr) => acc + curr.value, 0) / list.length;
   };
@@ -206,7 +208,7 @@ export const ForecastingEngine: React.FC<ForecastingEngineProps> = ({
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.1} />
                   <XAxis dataKey="year_month" stroke="#94a3b8" fontSize={9} tickLine={false} />
                   <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} tickFormatter={(v) => metric === 'customers' ? `${(v/1e3).toFixed(0)}k` : `$${(v/1e3).toFixed(0)}k`} />
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                   <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '11px' }} />
                   <Line type="monotone" dataKey="Historical" name="Historical Actual" stroke="#94A3B8" strokeWidth={2.5} dot={false} />
                   <Line type="monotone" dataKey="Forecast" name="Projected Model" stroke="#0D9488" strokeWidth={2.5} strokeDasharray="5 5" dot={false} />

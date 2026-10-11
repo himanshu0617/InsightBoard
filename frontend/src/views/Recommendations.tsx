@@ -1,14 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import { Lightbulb, CheckSquare, Zap, AlertTriangle, TrendingUp } from 'lucide-react';
+import type { DateFilters, Recommendation } from '../types';
+import { API_BASE_URL } from '../api';
 
 interface RecommendationsProps {
-  filters: any;
+  filters: DateFilters;
 }
 
 export const Recommendations: React.FC<RecommendationsProps> = ({
   filters,
 }) => {
-  const [recommendations, setRecommendations] = useState<any[]>([]);
+  const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -22,7 +24,7 @@ export const Recommendations: React.FC<RecommendationsProps> = ({
         if (filters.product && filters.product !== 'all') queryParams.append('product', filters.product);
         if (filters.customerType && filters.customerType !== 'all') queryParams.append('customerType', filters.customerType);
 
-        const response = await fetch(`http://localhost:5000/api/analytics/recommendations?${queryParams.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/api/analytics/recommendations?${queryParams.toString()}`);
         const data = await response.json();
         setRecommendations(data);
       } catch (e) {

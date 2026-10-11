@@ -4,10 +4,12 @@ import {
   ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Legend 
 } from 'recharts';
 import { TrendingUp, Percent, DollarSign, Wallet } from 'lucide-react';
+import type { DateFilters, MonthlyTrend, ProfitabilityResponse } from '../types';
+import { API_BASE_URL } from '../api';
 
 interface ProfitabilityAnalysisProps {
-  filters: any;
-  trends: any[];
+  filters: DateFilters;
+  trends: MonthlyTrend[];
   loading: boolean;
 }
 
@@ -18,10 +20,10 @@ export const ProfitabilityAnalysis: React.FC<ProfitabilityAnalysisProps> = ({
   trends,
   loading,
 }) => {
-  const [profitability, setProfitability] = useState<any>(null);
+  const [profitability, setProfitability] = useState<ProfitabilityResponse | null>(null);
   const [profLoading, setProfLoading] = useState(true);
 
-  const formatCurrency = (val: number) => {
+  const formatCurrency = (val: number | undefined) => {
     return new Intl.NumberFormat('en-US', {
       style: 'currency',
       currency: 'USD',
@@ -40,7 +42,7 @@ export const ProfitabilityAnalysis: React.FC<ProfitabilityAnalysisProps> = ({
         if (filters.product && filters.product !== 'all') queryParams.append('product', filters.product);
         if (filters.customerType && filters.customerType !== 'all') queryParams.append('customerType', filters.customerType);
 
-        const response = await fetch(`http://localhost:5000/api/analytics/profitability?${queryParams.toString()}`);
+        const response = await fetch(`${API_BASE_URL}/api/analytics/profitability?${queryParams.toString()}`);
         const data = await response.json();
         setProfitability(data);
       } catch (e) {
@@ -151,7 +153,7 @@ export const ProfitabilityAnalysis: React.FC<ProfitabilityAnalysisProps> = ({
                   <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.1} />
                   <XAxis dataKey="year_month" stroke="#94a3b8" fontSize={9} tickLine={false} />
                   <YAxis stroke="#94a3b8" fontSize={9} tickLine={false} label={{ value: 'Percent (%)', angle: -90, position: 'insideLeft', style: { textAnchor: 'middle', fill: '#94a3b8', fontSize: 10 } }} />
-                  <Tooltip formatter={(value: any) => `${Number(value).toFixed(1)}%`} />
+                  <Tooltip formatter={(value) => `${Number(value).toFixed(1)}%`} />
                   <Legend verticalAlign="top" height={36} wrapperStyle={{ fontSize: '11px' }} />
                   <Bar dataKey="margin" name="Net Profit Margin" fill="#0D9488" radius={[4, 4, 0, 0]} opacity={0.8} />
                   <Line type="monotone" dataKey="cost_ratio" name="Expense to Revenue Ratio" stroke="#EC4899" strokeWidth={2} dot={false} />
@@ -188,7 +190,7 @@ export const ProfitabilityAnalysis: React.FC<ProfitabilityAnalysisProps> = ({
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
-                  <Tooltip formatter={(value: any) => formatCurrency(Number(value))} />
+                  <Tooltip formatter={(value) => formatCurrency(Number(value))} />
                 </PieChart>
               </ResponsiveContainer>
             ) : (
